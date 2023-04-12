@@ -1,288 +1,223 @@
-// Player
-var Player = function() {
-    var _this = this,
-    $playerAll = $('[data-player]'),
-    $playerCurrent = null,
-    $displayArtistName = null,
-    $displayAlbumName = null,
-    $displaySongName = null,
-    $controlPrev = $('[data-player-prev]'),
-    $controlPlay = $('[data-player-play]'),
-    $controlNext = $('[data-player-next]'),
-    index = 0,
-    path = {
-        audio: 'http://lab.islegend.com/challenge/music-player/assets/audio/'
-    },
-    playing = false,
-    playlist = null,
-    audio = null;
-
-    _this.methods = {
-        init: function() {
-            _this.methods.bindUserEvents();
-        },
-        bindUserEvents: function() {
-
-            $playerAll.on('click', function() {
-
-                if ( !$(this).hasClass('player--open') ) {
-
-                    // pause the current player
-                    if (audio !== null) { 
-                        audio.pause(); 
-                        $playerCurrent.removeClass('player--open player--playing');
-                    }
-
-                    // get new player
-                    $playerCurrent = $(this);
-                    index = $playerCurrent.data('track');
-
-                    // retrieve display elements
-                    $displayArtistName = $playerCurrent.find('[data-player-album-artist]');
-                    $displayAlbumName = $playerCurrent.find('[data-player-album-name]'),
-                    $displaySongName = $playerCurrent.find('[data-player-album-song]');
-
-                    // Audio
-                    playlist = playlists[$playerCurrent.data('playlist')];
-                    audio = $playerCurrent.find('audio').get(0);
-                    audio.addEventListener('ended', function() { 
-                        _this.methods.nextTrack();
-                    });
-                    if (!audio.src) { _this.methods.loadTrack(0); }
-                    _this.methods.playTrack();
-
-                    $playerCurrent.toggleClass('player--open');
-
-                }
-
-            });
-
-            $controlPlay.on('click', function() {
-
-                if ($playerCurrent.hasClass('player--playing')) {
-                    _this.methods.pauseTrack();
-                } else {
-                    _this.methods.playTrack();
-                }
-
-            }); 
-
-            $controlNext.on('click', function() {
-                _this.methods.nextTrack();
-            }); 
-
-            $controlPrev.on('click', function() {
-                _this.methods.prevTrack();
-            }); 
-
-        },
-        loadTrack: function() {
-            audio.src = path.audio + playlist.slug + '/' + playlist.tracks[index].file;
-            $displayArtistName.text(playlist.tracks[index].artist);
-            $displayAlbumName.text(playlist.tracks[index].album);
-            $displaySongName.text(playlist.tracks[index].song);
-            $playerCurrent.data('track', index);
-        },
-        playTrack: function() {
-            $playerCurrent.addClass('player--playing');
-            playing = true;
-            audio.play();
-        },
-        pauseTrack: function() {
-            $playerCurrent.removeClass('player--playing');
-            playing = false;
-            audio.pause();
-        },
-        nextTrack: function() {
-
-            if ((index + 1) < playlist.trackCount) {
-                index++;
-            } else {
-                index = 0;
-            }
-
-            _this.methods.loadTrack(index);
-
-            if (playing) {
-                audio.play();
-            }
-
-        },
-        prevTrack: function() {
-
-            if ((index - 1) > -1) {
-                index--;
-            } else {
-                index = (playlist.trackCount - 1);
-            }
-
-            _this.methods.loadTrack(index);
-
-            if (playing) {
-                audio.play();
-            }
-
-        }
-    };
-
-    return _this.methods;
-
-};
-
-// Load
-$(function() {
-    player = new Player();
-    player.init();
+$(function(){
+	Audio.init();
 });
 
-// Data
-var playlists = {
-    billionaires2014Compilation: {
-        slug: "billionaires-2014-compilation",
-        trackCount: 17,
-        tracks: [
-            {
-                "track": 1,
-                "artist": "Another Monster",
-                "album": "Press Play EP",
-                "song": "Drop It Low",
-                "file": "another-monster-drop-it-low.mp3"
-            }, {
-                "track": 2,
-                "artist": "George Antonios",
-                "album": "Billionaires 2014 Compilation",
-                "song": "Signals In The Dark",
-                "file": "george-antonios-signals-in-the-dark.mp3"
-            }, {
-                "track": 3,
-                "artist": "Hypercube",
-                "album": "Billionaires 2014 Compilation",
-                "song": "Analog Circuits",
-                "file": "hypercube-analog-circuits.mp3"
-            }, {
-                "track": 4,
-                "artist": "Klarity",
-                "album": "Truth & Lies EP",
-                "song": "Second Nature",
-                "file": "klarity-second-nature.mp3"
-            }, {
-                "track": 5,
-                "artist": "Clerks",
-                "album": "Zone 6 Wizard EP",
-                "song": "Drama",
-                "file": "clerks-drama.mp3"
-            }, {
-                "track": 6,
-                "artist": "M00DY",
-                "album": "Super Squad EP",
-                "song": "Voyage",
-                "file": "m00dy-voyage.mp3"
-            }, {
-                "track": 7,
-                "artist": "Shuhandz",
-                "album": "Get Weird Remix EP",
-                "song": "Get Weird",
-                "file": "shuhandz-get-weird.mp3"
-            }, {
-                "track": 8,
-                "artist": "Bad Catholics",
-                "album": "Super Squad EP",
-                "song": "Astapor",
-                "file": "bad-catholics-astapor.mp3"
-            }, {
-                "track": 9,
-                "artist": "Aaron Sigmon",
-                "album": "Pop Dat Booty EP",
-                "song": "Booty Bump (Trap Mix)",
-                "file": "aaron-sigmon-booty-bump.mp3"
-            }, {
-                "track": 10,
-                "artist": "Dope Arcade",
-                "album": "Dead Wrong EP",
-                "song": "HAL 9k",
-                "file": "dope-arcade-hal-9k.mp3"
-            }, {
-                "track": 11,
-                "artist": "Jason Wiggz",
-                "album": "Super Squad EP",
-                "song": "MegaTons",
-                "file": "jason-wiggz-megatons.mp3"
-            }, {
-                "track": 12,
-                "artist": "Kit Walters & Boy Beats World",
-                "album": "Super Squad EP",
-                "song": "New Mutiny",
-                "file": "kit-walters-and-boy-beats-world-new-mutiny.mp3"
-            }, {
-                "track": 13,
-                "artist": "Two Face",
-                "album": "Super Squad EP",
-                "song": "Diavolo",
-                "file": "two-face-diavolo.mp3"
-            }, {
-                "track": 14,
-                "artist": "Kyle Biddy",
-                "album": "Super Squad EP",
-                "song": "T2",
-                "file": "kyle-biddy-t2.mp3"
-            }, {
-                "track": 15,
-                "artist": "Vorheez",
-                "album": "Spooked Out EP",
-                "song": "Showtime",
-                "file": "vorheez-showtime.mp3"
-            }, {
-                "track": 16,
-                "artist": "Vorheez",
-                "album": "Spooked Out EP",
-                "song": "Spooked Out",
-                "file": "vorheez-spooked-out.mp3"
-            }, {
-                "track": 17,
-                "artist": "Patrick Bandy",
-                "album": "A Day in the Life EP",
-                "song": "Sakura (Samurai Sword)",
-                "file": "patrick-bandy-sakura-samurai-sword.mp3"
-            }
-            
-        ]
-    },
-    projectMayhem:  {
-        slug: "project-mayhem",
-        trackCount: 2,
-        tracks: [
-            {
-                "track": 1,
-                "artist": "Kyle Thatcher",
-                "album": "Project: Mayhem",
-                "song": "Commence",
-                "file": "commence.mp3"
-            }, {
-                "track": 2,
-                "artist": "Kyle Thatcher",
-                "album": "Project: Mayhem",
-                "song": "Bouncy Green Slime",
-                "file": "bouncy-green-slime.mp3"
-            }
-        ]
-    },
-    boxer:  {
-        slug: 'boxer',
-        trackCount: 2,
-        tracks: [
-            {
-                "track": 1,
-                "artist": "The National",
-                "album": "Boxer",
-                "song": "Fake Empire",
-                "file": "fake-empire.mp3"
-            }, {
-                "track": 1,
-                "artist": "The National",
-                "album": "Boxer",
-                "song": "Mistaken For Strangers",
-                "file": "mistaken-for-strangers.mp3"
-            }
-        ]
-    }
+var intval;
+var autoplay;
+var Audio = {
+	init:function(){
+		this.info.init();
+		this.player();
+		this.scrollbar();
+	},
+	formatTime:function(secs){
+		var hr,min,sec;
+		hr  = Math.floor(secs / 3600);
+		min = Math.floor((secs - (hr * 3600))/60);
+		sec = Math.floor(secs - (hr * 3600) - (min * 60));
+
+		min = min>9?min:'0'+min;
+		sec = sec>9?sec:'0'+sec;
+		return min+':'+sec;
+	},
+	info:{
+		init:function(){
+			$('.play-list .play').each(function(){
+				var album,albumart,artist,title;
+				album=$(this).data('album');
+				albumart=$(this).data('albumart');
+				artist=$(this).data('artist');
+				title=$(this).data('title');
+
+				album=album?'<span class="album">'+album+'</span>':'Unknown Album';
+				albumart=albumart?'<img src="'+albumart+'">':'';
+				artist=artist?'<span class="song-artist">'+artist+'</span>':'Unknown Artist';
+				title=title?'<div class="song-title">'+title+'</div>':'Unknown Title';
+
+				$(this).html('<div class="album-thumb pull-left">'+albumart+'</div><div class="songs-info pull-left">'+title+'<div class="songs-detail">'+artist+' - '+album+'</div></div></div>');
+			});
+		},
+		load:function(id,album,artist,title,albumart,mp3){
+			var currentTrack, totalTrack;
+			totalTrack = $('.play-list>a').length;
+			currentTrack = $('.play-list a').index($('.play-list .active'))+1;
+			$('.play-position').text(currentTrack+' / '+totalTrack);
+			albumart=albumart?'<img src="'+albumart+'">':''; 
+			album=album?album:'Unknown Album';
+			title=title?title:'Unknown Title';
+			artist=artist?artist:'Unknown Artist';
+			$('.album-art').html(albumart);
+			$('.current-info .song-album').html('<i class="fa fa-music"></i> '+album);
+			$('.current-info .song-title').html('<i class="fa fa-headphones"></i> '+title);
+			$('.current-info .song-artist').html('<i class="fa fa-user"></i> '+artist);
+			if(mp3)
+			$('.audio').html('<audio class="music" data-id="'+id+'" src="'+mp3+'"></audio>');
+		}
+	},
+	player:function(){
+		var id, album, artist, albumart, title, mp3;
+		$('.play-list .play').each(function(){
+			$(this).on('click',function(e){
+				e.preventDefault();
+				$(this).siblings().removeClass('active');
+				$(this).addClass('active');
+				clearInterval(intval);
+				id = $(this).data('id');
+				album = $(this).data('album');
+				artist = $(this).data('artist');
+				albumart = $(this).data('albumart');
+				title = $(this).data('title');
+				mp3 = $(this).data('url');
+				Audio.info.load(id,album,artist,title,albumart,mp3);
+				Audio.play($('.music'));
+				$('.music').prop('volume',$('.volume').val());
+				Audio.playlist.hide();
+			});
+		});
+		$('.play-pause').on('click',function(e){
+			e.preventDefault();
+			if($('.audio').is(':empty')){
+				$('.play-list a:first-child').click();
+			}else{
+				var music = $('.music')[0];
+				if(music.paused){
+					setInterval(intval);
+					Audio.play($('.music'));
+					$(this).addClass('active');
+				}else{
+					clearInterval(intval);
+					Audio.pause($('.music'));
+					$(this).removeClass('active');
+				}
+			}
+		});
+
+		$('.stop').on('click',function(e){
+			e.preventDefault();
+			clearInterval(intval);
+			Audio.stop($('.music'));
+			$('.music')[0].currentTime=0;
+			$('.progress .bar').css('width',0);
+		});
+		$('.volume').on('change',function(){
+			var vol, css;
+			vol = $(this).val();
+			$(this).attr('data-css',vol);
+			$('.music').prop('volume',vol);
+		});
+		$('.prev').on('click',function(e){
+			var index, firstIndex;
+			e.preventDefault();
+			index = $('.play-list a').length - $('.play-list a').index();
+			firstIndex = $('.play-list a').length - $('.play-list a').index($('.play-list a.active'));
+			if(index==firstIndex){
+				$('.play-list a:last-child').click();
+			}else{
+				Audio.prev();
+			}
+		});
+		$('.next').on('click',function(e){
+			var index, lastIndex;
+			e.preventDefault();
+			index = $('.play-list a').length;
+			lastIndex = $('.play-list a').index($('.play-list a.active'))+1;
+			if(index==lastIndex){
+				$('.play-list a:first-child').click();
+			}else{
+				Audio.next();
+			}
+		});
+		$('.toggle-play-list').on('click',function(e){
+			e.preventDefault();
+			var toggle = $(this);
+			if(toggle.hasClass('active')){
+				Audio.playlist.hide();
+			}else{
+				Audio.playlist.show();
+			}
+		});
+	},
+	playlist:{
+		show:function(){
+			$('.play-list').fadeIn(500);
+			$('.toggle-play-list').addClass('active');
+			$('.album-art').addClass('blur');
+		},
+		hide:function(){
+			$('.play-list').fadeOut(500);
+			$('.toggle-play-list').removeClass('active');
+			$('.album-art').removeClass('blur');
+		}
+	},
+	play:function(e){
+		var bar, current, total;
+		e.trigger('play').bind('ended',function(){
+			$('.next').click();
+		});
+		intval = setInterval(function(){
+		current = e[0].currentTime;
+		$('.play-current-time').text(Audio.formatTime(current));
+
+		bar = (current/e[0].duration)*100;
+		$('.progress .bar').css('width',bar+'%');
+		
+		},1000);
+
+		var totalDur = setInterval(function(t){
+			if($('.audio .music')[0].readyState>0){
+				total = e[0].duration;
+				$('.play-total-time').text(Audio.formatTime(total));
+				clearInterval(totalDur);
+			}
+		}, 1000);
+		$('.play-pause').addClass('active');
+	},
+	pause:function(e){
+		e.trigger('pause');
+		$('.play-pause').removeClass('active');
+	},
+	stop:function(e){
+		e.trigger('pause').prop('currentTime',0);
+		$('.play-pause').removeClass('active');
+	},
+	mute:function(e){
+		prop('muted',!e.prop('muted'));
+	},
+	volumeUp:function(e){
+		var volume = e.prop('volume')+0.2;
+		if(volume >1){
+			volume = 1;
+		}
+		e.prop('volume',volume);
+	},
+	volumeDown:function(e){
+		var volume = e.prop('volume')-0.2;
+		if(volume <0){
+			volume = 0;
+		}
+		e.prop('volume',volume);
+	},
+	prev:function(){
+		var curr = $('.music').data('id');
+		var prev = $('a[data-id="'+curr+'"]').prev();
+		if(curr && prev){
+			prev.click();
+		}
+	},
+	next:function(){
+		var curr = $('.music').data('id');
+		var next = $('a[data-id="'+curr+'"]').next();
+		if(curr && next){
+			next.click();
+		}
+	},
+	scrollbar:function(){
+		if(typeof $.fn.enscroll !== 'undefined'){
+			$('.play-list').enscroll({
+				showOnHover:true,
+				verticalTrackClass:'track',
+				verticalHandleClass:'handle'
+			});
+		}
+	}
 }
